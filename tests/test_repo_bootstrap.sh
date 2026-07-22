@@ -3,7 +3,9 @@ set -euo pipefail
 
 test_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 project_dir=$(cd "$test_dir/.." && pwd)
-command_path="$project_dir/bin/repo-bootstrap"
+skill_dir="$project_dir/skills/bootstrap-github-repo"
+command_path="$skill_dir/scripts/repo-bootstrap"
+wrapper_path="$project_dir/bin/repo-bootstrap"
 
 fail() {
   echo "FAIL: $*" >&2
@@ -17,10 +19,11 @@ assert_contains() {
 }
 
 bash -n "$command_path"
+bash -n "$wrapper_path"
 bash -n "$project_dir/tests/test_repo_bootstrap.sh"
 bash -n "$project_dir/tests/fixtures/gh"
 
-for ruleset_file in "$project_dir"/rulesets/*.json; do
+for ruleset_file in "$skill_dir"/assets/rulesets/*.json; do
   jq empty "$ruleset_file"
 done
 
@@ -37,8 +40,27 @@ ruby -e '
 ' \
   "$project_dir"/.github/workflows/*.yml \
   "$project_dir"/.github/dependabot.yml \
-  "$project_dir"/templates/*/.github/workflows/*.yml \
-  "$project_dir"/templates/*/.github/dependabot.yml
+  "$skill_dir"/agents/openai.yaml \
+  "$skill_dir"/assets/templates/*/.github/workflows/*.yml \
+  "$skill_dir"/assets/templates/*/.github/dependabot.yml
+
+ruby -e '
+  require "yaml"
+  skill_dir = ARGV.fetch(0)
+  skill_text = File.read(File.join(skill_dir, "SKILL.md"))
+  frontmatter = skill_text.match(/\A---\n(.*?)\n---\n/m) or raise "missing skill frontmatter"
+  metadata = YAML.safe_load(frontmatter[1])
+  raise "unexpected skill frontmatter" unless metadata.keys.sort == %w[description name]
+  raise "unexpected skill name" unless metadata["name"] == "bootstrap-github-repo"
+
+  agent_metadata = YAML.safe_load(File.read(File.join(skill_dir, "agents/openai.yaml")))
+  default_prompt = agent_metadata.dig("interface", "default_prompt")
+  raise "default prompt must mention the skill" unless default_prompt.include?("$bootstrap-github-repo")
+' "$skill_dir"
+
+if grep -R -n -E '\[TODO|TODO:' "$skill_dir"; then
+  fail "skill contains an unresolved TODO"
+fi
 
 python_plan=$("$command_path" hiroto7/example --profile python)
 assert_contains "$python_plan" "Mode:       dry-run"
@@ -54,7 +76,10 @@ assert_contains "$node_plan" "standard-main [branch]: build, e2e"
 
 tooling_plan=$("$command_path" hiroto7/example --profile tooling)
 assert_contains "$tooling_plan" "standard-main [branch]: test"
-assert_contains "$tooling_plan" "Starter files: templates/tooling/.github"
+assert_contains "$tooling_plan" "assets/templates/tooling/.github"
+
+wrapper_plan=$("$wrapper_path" hiroto7/example --profile python)
+assert_contains "$wrapper_plan" "standard-main [branch]: test"
 
 if "$command_path" invalid --profile python >/dev/null 2>&1; then
   fail "invalid repository name was accepted"
