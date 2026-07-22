@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "$*" >>"$FAKE_GH_LOG"
+
+# An empty response means the managed ruleset does not exist yet, so the
+# bootstrap command should exercise its create path.
+if [[ "$1" == "api" && "$*" == *"/rulesets --jq"* ]]; then
+  if [[ -n "${FAKE_RULESET_ID:-}" ]]; then
+    echo "$FAKE_RULESET_ID"
+  fi
+  exit 0
+fi
+
+exit 0
