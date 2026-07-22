@@ -62,26 +62,26 @@ if grep -R -n -E '\[TODO|TODO:' "$skill_dir"; then
   fail "skill contains an unresolved TODO"
 fi
 
-python_plan=$("$command_path" hiroto7/example --profile python)
+python_plan=$(bash "$command_path" hiroto7/example --profile python)
 assert_contains "$python_plan" "Mode:       dry-run"
 assert_contains "$python_plan" "standard-main [branch]: test"
 assert_contains "$python_plan" "No changes made"
 
-macos_plan=$("$command_path" hiroto7/example --profile python-macos)
+macos_plan=$(bash "$command_path" hiroto7/example --profile python-macos)
 assert_contains "$macos_plan" "test (macos-latest), test (ubuntu-latest), package-macos"
 assert_contains "$macos_plan" "release-tags [tag]: no status checks"
 
-node_plan=$("$command_path" hiroto7/example --profile node-web)
+node_plan=$(bash "$command_path" hiroto7/example --profile node-web)
 assert_contains "$node_plan" "standard-main [branch]: build, e2e"
 
-tooling_plan=$("$command_path" hiroto7/example --profile tooling)
+tooling_plan=$(bash "$command_path" hiroto7/example --profile tooling)
 assert_contains "$tooling_plan" "standard-main [branch]: test"
 assert_contains "$tooling_plan" "assets/templates/tooling/.github"
 
 wrapper_plan=$("$wrapper_path" hiroto7/example --profile python)
 assert_contains "$wrapper_plan" "standard-main [branch]: test"
 
-if "$command_path" invalid --profile python >/dev/null 2>&1; then
+if bash "$command_path" invalid --profile python >/dev/null 2>&1; then
   fail "invalid repository name was accepted"
 fi
 
@@ -90,7 +90,7 @@ fake_log=$(mktemp)
 trap 'rm -f "$fake_log"' EXIT
 
 PATH="$fake_dir:$PATH" FAKE_GH_LOG="$fake_log" \
-  "$command_path" hiroto7/example --profile python --apply >/dev/null
+  bash "$command_path" hiroto7/example --profile python --apply >/dev/null
 
 apply_log=$(<"$fake_log")
 assert_contains "$apply_log" "api --method PATCH repos/hiroto7/example"
@@ -98,7 +98,7 @@ assert_contains "$apply_log" "api --method POST repos/hiroto7/example/rulesets"
 
 : >"$fake_log"
 PATH="$fake_dir:$PATH" FAKE_GH_LOG="$fake_log" FAKE_RULESET_ID=12345 \
-  "$command_path" hiroto7/example --profile node-web --apply >/dev/null
+  bash "$command_path" hiroto7/example --profile node-web --apply >/dev/null
 
 update_log=$(<"$fake_log")
 assert_contains "$update_log" "api --method PUT repos/hiroto7/example/rulesets/12345"

@@ -19,7 +19,7 @@ Apply repository defaults without overwriting application-specific behavior. Kee
 4. Compare `assets/templates/<profile>/.github` with the target. Copy only the needed files and adapt application names, versions, package commands, E2E commands, and packaging steps. Preserve relevant existing jobs and permissions.
 5. Run the target repository's local checks. Commit and publish through its normal branch and PR workflow when requested.
 6. Confirm that GitHub Actions has run successfully and that its check names exactly match the selected profile.
-7. Run `scripts/repo-bootstrap OWNER/REPO --profile PROFILE` and report the dry-run plan.
+7. Run `bash scripts/repo-bootstrap OWNER/REPO --profile PROFILE` and report the dry-run plan.
 8. Run the same command with `--apply` only when the target, profile, and remote settings mutation are authorized.
 9. Re-fetch repository merge settings, rulesets, and required status checks. Report any unsupported rule caused by repository visibility or GitHub plan.
 
@@ -34,6 +34,6 @@ Apply repository defaults without overwriting application-specific behavior. Kee
 
 ## Bundled Resources
 
-- Run `scripts/repo-bootstrap` for dry-run and repository settings application.
+- Run `bash scripts/repo-bootstrap` for dry-run and repository settings application. Do not rely on its executable bit because archive-based Skill installation may not preserve file modes.
 - Copy and adapt starter files from `assets/templates/<profile>/.github`.
 - Treat `assets/rulesets/*.json` as script inputs; do not edit a target repository to store them unless explicitly requested.
