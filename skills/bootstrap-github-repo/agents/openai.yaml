@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHubリポジトリ初期化"
+  short_description: "新規・既存GitHubリポジトリのCIとRulesetを安全に標準化"
+  default_prompt: "Use $bootstrap-github-repo to inspect this repository and safely apply the matching CI, Dependabot, merge settings, and rulesets."

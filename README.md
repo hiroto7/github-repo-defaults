@@ -28,7 +28,7 @@ GitHub上の設定は変更しません。
 | `tooling` | `test` | シェルスクリプトを中心としたリポジトリ管理ツール |
 
 各プロファイルのCIとDependabotのひな形は、
-[`templates/`](templates/)以下にあります。対象リポジトリへ対応する
+[`assets/templates/`](skills/bootstrap-github-repo/assets/templates/)以下にあります。対象リポジトリへ対応する
 `.github`ディレクトリを導入し、初回コミットをpushしてCIが動く状態にしてから、
 同じプロファイルのRulesetを適用してください。
 
@@ -64,7 +64,7 @@ Rulesetには触れません。
 
 ## 導入手順
 
-1. 対象リポジトリに、対応する`templates/<profile>/.github`の内容を配置します。
+1. 対象リポジトリに、対応する`skills/bootstrap-github-repo/assets/templates/<profile>/.github`の内容を配置します。
 2. アプリ名、パッケージコマンド、E2Eコマンドなどを対象リポジトリに合わせます。
 3. 初回コミットをpushし、GitHub Actionsのチェック名がプロファイルと一致することを確認します。
 4. `repo-bootstrap`を`--apply`なしで実行し、変更予定を確認します。
@@ -72,6 +72,19 @@ Rulesetには触れません。
 
 Rulesetを先に適用すると、必須チェックがまだ存在しないため、最初の変更を
 マージできなくなる可能性があります。CIを先に動かしてから適用してください。
+
+## Codex Skill
+
+同じ手順をCodexから繰り返し利用できるよう、
+[`bootstrap-github-repo`](skills/bootstrap-github-repo/) Skillを同梱しています。
+
+GitHub上のSkillを正本とし、各PCのCodex Skillsディレクトリにはインストールした
+コピーを置く想定です。ローカルのコピーを直接編集せず、このリポジトリで変更、
+テスト、レビューしてから再インストールしてください。
+
+Skillは対象リポジトリの技術構成を調査し、プロファイル選択、テンプレート調整、
+CI確認、dry-run、Ruleset適用後の再確認までを案内します。実際のGitHub設定変更は、
+Skill内の決定的な`repo-bootstrap`スクリプトが担当します。
 
 ## 必要なものと制約
 
