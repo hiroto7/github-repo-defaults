@@ -32,6 +32,20 @@ Apply repository defaults without overwriting application-specific behavior. Kee
 - Keep action references pinned to full commit SHAs and retain readable version comments.
 - After creating or updating a PR, confirm that CI passes.
 
+## Maintenance Feedback Loop
+
+Treat problems found during real use as evidence and classify them before changing this Skill.
+
+- Finish the target repository task with the smallest safe workaround when possible.
+- Classify the finding as target-specific, a reproducible general defect, a feature proposal, or a security concern.
+- Do not change this Skill for target-specific behavior.
+- Never treat an edit to the installed local copy as the permanent fix. Use `hiroto7/github-repo-defaults` as the canonical source.
+- For a reproducible general defect, when the authenticated GitHub user owns the canonical source repository, create a separate branch and Draft PR with a regression test. Keep it separate from the target repository's branch and PR.
+- When the authenticated user does not own the canonical source repository, report the defect and proposed fix without opening a PR.
+- For a feature proposal or behavior change, explain the need and obtain confirmation before implementation.
+- For a security concern, report it privately before exposing details in a public issue or PR.
+- Confirm the maintenance PR's CI. Never merge it without explicit user authorization.
+
 ## Bundled Resources
 
 - Run `bash scripts/repo-bootstrap` for dry-run and repository settings application. Do not rely on its executable bit because archive-based Skill installation may not preserve file modes.
