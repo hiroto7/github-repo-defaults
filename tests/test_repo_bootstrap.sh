@@ -21,7 +21,10 @@ assert_contains() {
 bash -n "$command_path"
 bash -n "$wrapper_path"
 bash -n "$project_dir/tests/test_repo_bootstrap.sh"
+bash -n "$project_dir/tests/test_node_web_template.sh"
 bash -n "$project_dir/tests/fixtures/gh"
+bash -n "$skill_dir/assets/templates/node-web/scripts/run-e2e-in-docker.sh"
+bash -n "$skill_dir/assets/templates/node-web/scripts/run-playwright-in-container.sh"
 
 for ruleset_file in "$skill_dir"/assets/rulesets/*.json; do
   jq empty "$ruleset_file"
@@ -43,6 +46,22 @@ ruby -e '
   "$skill_dir"/agents/openai.yaml \
   "$skill_dir"/assets/templates/*/.github/workflows/*.yml \
   "$skill_dir"/assets/templates/*/.github/dependabot.yml
+
+ruby -e '
+  require "yaml"
+  files = Dir.glob("#{ARGV.fetch(0)}/assets/templates/*/.github/workflows/*.yml")
+  files.each do |file|
+    File.readlines(file).each do |line|
+      next unless line.include?("- uses:")
+      raise "action is not pinned to a full SHA: #{file}: #{line}" unless line.match?(/- uses: [^@\s]+@[0-9a-f]{40} # v\S+/)
+    end
+  end
+
+  macos = YAML.safe_load(File.read("#{ARGV.fetch(0)}/assets/templates/python-macos/.github/workflows/ci.yml"))
+  raise "macOS workflow must be read-only by default" unless macos.fetch("permissions") == {"contents" => "read"}
+  release = macos.fetch("jobs").fetch("release")
+  raise "only the release job needs write access" unless release.fetch("permissions") == {"contents" => "write"}
+' "$skill_dir"
 
 ruby -e '
   require "yaml"
@@ -73,6 +92,7 @@ assert_contains "$macos_plan" "release-tags [tag]: no status checks"
 
 node_plan=$(bash "$command_path" hiroto7/example --profile node-web)
 assert_contains "$node_plan" "standard-main [branch]: build, e2e"
+assert_contains "$node_plan" "assets/templates/node-web/scripts"
 
 tooling_plan=$(bash "$command_path" hiroto7/example --profile tooling)
 assert_contains "$tooling_plan" "standard-main [branch]: test"
@@ -102,5 +122,7 @@ PATH="$fake_dir:$PATH" FAKE_GH_LOG="$fake_log" FAKE_RULESET_ID=12345 \
 
 update_log=$(<"$fake_log")
 assert_contains "$update_log" "api --method PUT repos/hiroto7/example/rulesets/12345"
+
+bash "$project_dir/tests/test_node_web_template.sh"
 
 echo "All tests passed."

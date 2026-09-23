@@ -32,6 +32,14 @@ GitHub上の設定は変更しません。
 `.github`ディレクトリを導入し、初回コミットをpushしてCIが動く状態にしてから、
 同じプロファイルのRulesetを適用してください。
 
+`node-web`では、同じテンプレートの`scripts/`も導入します。`package.json`に
+バージョンを固定した`@playwright/test`とKnipを開発依存関係として追加し、
+`test:e2e`を`bash ./scripts/run-e2e-in-docker.sh`、`knip`を実行するnpm scriptに設定します。
+CIとローカルのE2Eは同じDockerコマンドを使い、Dockerイメージのバージョンは
+`@playwright/test`から決まります。ローカル実行にもDockerが必要です。
+PlaywrightのDependabot更新は、他のminor・patch更新と分けて確認します。
+アプリに合わせたPlaywrightのテストとKnipの入口設定を用意してからCIを必須化してください。
+
 このPoCは、別のリポジトリへファイルを自動でcommit・pushしません。
 アプリケーション固有のコマンドを確認してから導入できるよう、
 ファイル配置とGitHub設定の適用を意図的に分けています。
@@ -65,7 +73,7 @@ Rulesetには触れません。
 ## 導入手順
 
 1. 対象リポジトリに、対応する`skills/bootstrap-github-repo/assets/templates/<profile>/.github`の内容を配置します。
-2. アプリ名、パッケージコマンド、E2Eコマンドなどを対象リポジトリに合わせます。
+2. アプリ名、パッケージコマンド、E2Eテストなどを対象リポジトリに合わせます。`node-web`では上記の依存関係、npm script、Dockerランナーも設定します。
 3. 初回コミットをpushし、GitHub Actionsのチェック名がプロファイルと一致することを確認します。
 4. `repo-bootstrap`を`--apply`なしで実行し、変更予定を確認します。
 5. 問題がなければ`--apply`を付けて設定とRulesetを適用します。
