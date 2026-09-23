@@ -34,7 +34,7 @@ GitHub上の設定は変更しません。
 
 `node-web`では、同じテンプレートの`scripts/`も導入します。`package.json`に
 バージョンを固定した`@playwright/test`とKnipを開発依存関係として追加し、
-`test:e2e`を`bash ./scripts/run-e2e-in-docker.sh`、`check:unused`を`knip`に設定します。
+`test:e2e`を`bash ./scripts/run-e2e-in-docker.sh`、`knip`を実行するnpm scriptに設定します。
 CIとローカルのE2Eは同じDockerコマンドを使い、Dockerイメージのバージョンは
 `@playwright/test`から決まります。ローカル実行にもDockerが必要です。
 PlaywrightのDependabot更新は、他のminor・patch更新と分けて確認します。

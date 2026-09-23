@@ -17,7 +17,7 @@ template_dir = ARGV.fetch(0)
 workflow = YAML.safe_load(File.read("#{template_dir}/.github/workflows/ci.yml"))
 jobs = workflow.fetch("jobs")
 raise "required job names changed" unless jobs.keys.sort == %w[build e2e]
-raise "unused-code check is missing from build" unless jobs.fetch("build").fetch("steps").any? { |step| step["run"] == "npm run check:unused" }
+raise "Knip is missing from build" unless jobs.fetch("build").fetch("steps").any? { |step| step["run"] == "npm run knip" }
 e2e = jobs.fetch("e2e")
 raise "E2E must use the same npm script locally and in CI" unless e2e.fetch("steps").any? { |step| step["run"] == "npm run test:e2e" }
 raise "E2E must not pin a separate job container" if e2e.key?("container")
@@ -39,7 +39,7 @@ cat >"$fixture_dir/package.json" <<'JSON'
   "private": true,
   "scripts": {
     "test:e2e": "bash ./scripts/run-e2e-in-docker.sh",
-    "check:unused": "knip"
+    "knip": "knip"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
@@ -68,7 +68,7 @@ chmod +x "$fixture_dir/fake-bin/docker" "$fixture_dir/fake-bin/knip"
     DOCKER_ARGS_LOG="$fixture_dir/ci-args" DOCKER_CI_LOG="$fixture_dir/ci-ci" \
     npm run test:e2e >/dev/null
   PATH="$fixture_dir/fake-bin:$PATH" KNIP_LOG="$fixture_dir/knip-log" \
-    npm run check:unused >/dev/null
+    npm run knip >/dev/null
 )
 
 cmp "$fixture_dir/local-args" "$fixture_dir/ci-args" || fail "local and CI E2E commands differ"
