@@ -29,7 +29,7 @@ The `node-web` profile is a complete CI starting point, not just a workflow file
 
 - Use npm with a committed `package-lock.json` and working `build`, `typecheck`, `lint:ci`, and `test` scripts. Add application-specific checks to the `build` job when needed.
 - Add `@playwright/test` as an exact dev dependency, a Playwright config, and at least one meaningful browser test. Set `test:e2e` to `bash ./scripts/run-e2e-in-docker.sh`. Use this same command locally and in CI; Docker must be available in both places. The runner derives the official `v<package version>-noble` image from `package.json` and installs locked dependencies inside it. Confirm that the matching image exists when updating Playwright.
-- Add Knip as a dev dependency and a `knip` script. Run type generation before Knip if the framework needs generated types. Configure only application-specific entry points that Knip cannot discover; do not add broad exclusions to make the check pass.
+- Add a `check:unused` script for unused code and dependencies. Use Knip as the default implementation: add it as a dev dependency and make `check:unused` run `knip`. Run type generation first if the framework needs generated types. Configure only application-specific entry points that Knip cannot discover; do not add broad exclusions to make the check pass. Keep the workflow calling the purpose-named npm script, just as it does for build, lint, and tests.
 - Keep `@playwright/test` outside the grouped npm minor/patch updates so that its image and test results are reviewed in a separate Dependabot PR.
 - Keep the `build` and `e2e` job names used by the ruleset. Adapt the commands and tests, not these required check names.
 
