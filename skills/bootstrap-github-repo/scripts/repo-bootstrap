@@ -89,6 +89,9 @@ print_plan() {
   done
   echo
   echo "Starter files: $skill_dir/assets/templates/$profile/.github"
+  if [[ "$profile" == "node-web" ]]; then
+    echo "Starter scripts: $skill_dir/assets/templates/node-web/scripts"
+  fi
 }
 
 print_plan
